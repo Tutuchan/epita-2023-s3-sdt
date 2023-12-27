@@ -1,0 +1,111 @@
+---
+title: "Setup"
+format: 
+  revealjs:
+    smaller: true
+---
+
+## Install Python
+
+Install Python **>= 3.10** from the [Python website](https://www.python.org/downloads/).
+
+You can use [pyenv](https://github.com/pyenv/pyenv) instead.
+
+## Install Airflow
+
+### Create a virtual environment
+
+From your home directory:
+
+- make sure the `python` version is >= 3.10:
+
+```bash
+python --version
+```
+
+- create and activate the virtual environment for Airflow
+
+```{.bash}
+# For Mac / Linux
+python -m venv venv-airflow # might need to use python3 here
+source venv-airflow/bin/activate
+
+# For Windows
+python -m venv venv-airflow # might need to use python3 here
+.\venv-airflow\Scripts\activate
+```
+
+## Install Airflow
+
+- make sure the `8080` port is available,
+- make sure the virtual environment is correctly activated:
+
+```{.bash}
+# For Mac / Linux
+which pip
+# should return something like /Users/<your-user>/venv-airflow/bin/pip
+
+# For Windows
+TODO
+```
+
+- read [this documentation](https://airflow.apache.org/docs/apache-airflow/stable/start.html) to install Airflow
+- summary:
+
+```{.bash}
+AIRFLOW_VERSION=2.8.0
+PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
+CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+
+pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+```
+
+- run Airflow:
+
+```{.bash}
+airflow standalone
+```
+
+- in the terminal, you should see something like this:
+
+```plain
+ webserver | [2023-12-26 09:21:18 +0100] [85451] [INFO] Listening at: http://0.0.0.0:8080 (85451)
+
+[...]
+
+standalone | 
+standalone | Airflow is ready
+standalone | Login with username: admin  password: VG9yPG6XnTRgQEcW
+standalone | Airflow Standalone is for development purposes only. Do not use this in production!
+standalone | 
+```
+
+- this is the local url, user and password to login to Airflow
+
+## Use the course repository
+
+- fork this repository
+- open a new terminal, go to the folder where you want to clone the fork and clone it
+
+```{.bash}
+cd whatever/folder
+git clone https://github.com/<your-github-username>/epita-2023-s3-sdt.git
+```
+
+- go to the cloned folder
+
+```{.bash}
+cd epita-2023-s3-sdt
+```
+
+- create a virtual environment for this folder
+
+```{.bash}
+# For Mac / Linux
+python -m venv venv # might need to use python3 here
+source venv/bin/activate
+
+# For Windows
+python -m venv venv # might need to use python3 here
+.\venv\Scripts\activate
+```
