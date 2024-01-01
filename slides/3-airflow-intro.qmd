@@ -1,0 +1,454 @@
+---
+title: "Airflow"
+author: "Pierre Formont"
+format: 
+  revealjs:
+    highlight-style: a11y
+    code-block-background: true
+    code-block-border-left: true
+    code-line-numbers: true
+    incremental: false
+    smaller: true
+    theme: night
+---
+
+## Agenda
+
+- Airflow, a short introduction
+- DAGs
+- Tasks
+- Exercises
+
+## What is Airflow
+
+- open-source platform for developing and scheduling worfklows
+- workflows defined as code in Python:
+  - dynamic
+  - extensible
+  - flexible
+- very important piece of the data industry, used in many major companies, _e.g._:
+  - Airbnb (where it started in 2014)
+  - NASA
+  - Paypal
+- part of the [Apache Software Foundation](https://apache.org/) since 2016
+
+## Apache Software Foundation
+
+- non-profit organization founded in 1999
+- largest open-source foundation
+- their goal is to provide "software for the public good"
+- many projects in the data world, _e.g._
+  - Airflow: orchestrator 
+  - Avro: data serialization system
+  - Kafka: publish-subscribe messaging system
+  - Flink: large-scale data processing
+  - Cassandra: large-scale distributed database
+
+## Airflow main concepts
+
+- workflows are collection of **Tasks** to be executed in a specific order
+- definition of the workflow represented as a DAG = **`D`**`irected` **`A`**`cyclic` **`G`**`raph`:
+  - _graph_: a set of objects -- here **Tasks** -- that are related to each other
+  - _directed_: the connections between objects have a direction, _e.g._ we want to execute task A before task B
+  - _acyclic_: there is no cycle in the graph, _e.g._ :
+    - task B depends on task A
+    - task C depends on task B
+    - task A cannot depend on task B or C
+- a **DagRun** represents one execution of this workflow, _e.g._:
+  - a specific DAG is scheduled to run every day at 1am, starting today
+  - there will be 1 **DagRun** today at 1am, 1 **DagRun** tomorrow at 1am, etc.
+
+## Airflow UI - DAGs page (1/2)
+
+![](resources/images/airflow_ui_dags.png)
+
+- Left toggle: pause / unpause a DAG
+- DAG: the name of the DAG + optional tags
+- Owner: the name of who is responsible for this DAG
+- Runs: count of DagRuns for this DAG, grouped by status
+- Schedule: when is this DAG scheduled to run
+
+## Airflow UI - DAGs page (2/2)
+
+![](resources/images/airflow_ui_dags.png)
+
+- Last Run: timestamp of the last DagRun
+- Next Run: timestamp of when the next DagRun will occur
+- Recent Tasks: count of tasks for the past DagRun, grouped by status
+- Actions: `Trigger DAG` and `Delete DAG` button
+- Links: go directly to one of the DAG pages
+
+## Airflow UI - focus on a DAG
+
+![](resources/images/airflow_ui_dags_example.png)
+
+- toggle is blue -> the DAG is unpaused
+- the DAG has run once and it was a failure
+- there is no Next Run timestamp as the DAG as a `None` Schedule (only run when manually triggered)
+- in the past run:
+  - 2 tasks succeeded
+  - 1 task failed
+  - 6 tasks have not run because a task before them failed
+
+## Airflow UI - DAG Grid page
+
+![](resources/images/airflow_ui_dag_grid.png)
+
+High level overview of a DAG:
+
+- documentation,
+- past DagRuns,
+- number and type of tasks,
+- etc.
+
+## Airflow UI - DAG Graph page
+
+![](resources/images/airflow_ui_dag_graph.png)
+
+- can see all tasks and how they are related
+- tasks that succeeded in green, failed in red and could not run -- `upstream_failed` in orange
+
+## Airflow UI - DAG Graph Task page
+
+![](resources/images/airflow_ui_dag_graph_task.png)
+
+- clicking on a task adds new menus to the UI
+- in particular, you can see the log for the task to understand what happened
+
+## Airflow UI - Task log page
+
+![](resources/images/airflow_ui_task_log.png)
+
+- here, we can see it's missing a Python module
+
+## Airflow UI - DAG code page
+
+![](resources/images/airflow_ui_dag_code.png)
+
+- in this we can see the actual definition of the DAG
+- it's Python code !
+
+## Write a DAG
+
+Since Airflow 2.0, DAGs can be written as Python functions with a specific decorator.
+
+```{.python}
+from airflow.decorators import dag
+from datetime import datetime
+
+@dag(
+    schedule="0 0 * * *", # define how often the DAG runs, cron syntax
+    start_date=datetime(2024, 1, 1), # define the date of the first execution
+    catchup=False # if a run fails, do not try to rerun it
+)
+def structured_data_and_transportation():
+    # Insert worfklow code here
+    pass
+
+
+_ = structured_data_and_transportation()
+```
+
+Place this file in the `airflow/dags` folder of your repository and Airflow will pick it up[^1].
+
+[^1]: If it's the first time this DAG file is put in the folder, you might need to restart Airflow.
+
+## Sidenote: Python decorators
+
+A decorator is a function that takes another function and extends its behavior without explicitly modifying it.
+
+```{python}
+#| echo: True
+def my_decorator(func):
+    def wrapper():
+        print("Something is happening before the function is called.")
+        func()
+        print("Something is happening after the function is called.")
+    return wrapper
+
+@my_decorator
+def say_hi():
+    print("Hi!")
+```
+
+
+What happens if we run this ?
+
+. . .
+
+```{python}
+#| echo: True
+say_hi()
+```
+
+. . .
+
+Read more in [this article](https://realpython.com/primer-on-python-decorators/).
+
+## Write a Task
+
+Two ways to write a Task:
+
+- use one of the `Operators` packaged in Airflow, or provided by a third-party:
+  - packaged operators for many use cases:
+    - [BashOperator](https://airflow.apache.org/docs/apache-airflow/2.1.0/_api/airflow/operators/bash/index.html#module-airflow.operators.bash): run a shell command
+    - [SQLiteOperator](https://airflow.apache.org/docs/apache-airflow-providers-sqlite/stable/_api/airflow/providers/sqlite/operators/sqlite/index.html#module-airflow.providers.sqlite.operators.sqlite): execute SQL code in a specific sqlite database
+    - [DockerOperator](https://airflow.apache.org/docs/apache-airflow-providers-docker/stable/_api/airflow/providers/docker/operators/docker/index.html#): execute a command inside a running Docker container
+  - all Cloud vendors propose Python packages to interact with their services from Airflow, _e.g._
+      - [AWS](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/_api/airflow/providers/amazon/index.html)
+      - [GCP](https://airflow.apache.org/docs/apache-airflow-providers-google/stable/index.html)
+- since Airflow 2.0, the Taskflow API defines the `@task` decorator to abstract away most of the boilerplate if using only Python code
+
+## Hello world
+
+```{.python code-line-numbers="|2|12-13|15"}
+from airflow.decorators import dag
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def hello_operator_dag():
+    
+    def say_hello() -> str:
+      return "Hello, world!"
+    
+    PythonOperator(task_id="hello", python_callable=say_hello)
+
+_ = hello_operator_dag()
+```
+
+- import the Operator
+- define the Python function to be called
+- create a Task of type `PythonOperator` with:
+  - `task_id="hello"`: the name of the task, should be unique to a DAG
+  - `python_callable=say_hello`: the Python function to run
+
+## Hello world output
+
+![](resources/images/airflow_ui_hello_log.png)
+
+## Hello world with decorator
+
+Using the `@task` decorator, Airflow tasks are simple Python functions, _e.g._
+
+```{.python code-line-numbers="|1|11-13|15|"}
+from airflow.decorators import dag, task
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def structured_data_and_transportation():
+    
+    @task
+    def say_hello() -> str:
+      return "Hello, world!"
+
+    hello = say_hello()
+
+_ = structured_data_and_transportation()
+```
+
+- import the decorator,
+- define the task[^2],
+- call the task to be instantiated.
+
+[^2]: no need to define the `task_id`, it is picked up automatically from the function name.
+
+## Hello world with decorator output
+
+![](resources/images/airflow_ui_hello_log.png)
+
+## Using parameters in tasks
+
+```{.python code-line-numbers="|12|15|"}
+from airflow.decorators import dag, task
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def hello_with_parameters_dag():
+    
+    @task
+    def say_hello(name: str) -> str:
+      return f"Hello, world! My name is {name}"
+
+    hello = say_hello("Pierre")
+
+_ = hello_with_parameters_dag()
+```
+
+## Create relations between tasks
+
+Relations between tasks can be set using the bitshift operator `>>`.
+
+```{.python code-line-numbers="|15,17|19|"}
+from airflow.decorators import dag
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def hello_operator_with_relations_dag():
+    
+    def say_hello() -> str:
+      return "Hello, world!"
+    
+    hello = PythonOperator(task_id="hello", python_callable=say_hello)
+
+    hello_again = PythonOperator(task_id="hello_again", python_callable=say_hello)
+
+    hello >> hello_again
+
+_ = hello_operator_with_relations_dag()
+```
+
+## Hello task instance details
+
+In the [task instance details](http://localhost:8080/task?dag_id=hello_operator_with_relations_dag&task_id=hello&execution_date=2023-01-12T14%3A39%3A59.802469%2B00%3A00), we can see the `hello_again` task is `downstream` of the `hello` task, _i.e_ it depends on the `hello` task to succeed before it runs.
+
+![](resources/images/airflow_ui_hello_downstream.png)
+
+## Pass data between Tasks
+
+Now we know how to use parameters in tasks, we can use the results from a previous task to parameterize its downstream tasks.
+
+```{.python code-line-numbers="|20"}
+from airflow.decorators import dag, task
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def hello_with_passing_data_dag():
+
+    @task
+    def give_name() -> str:
+      return "Pierre"
+    
+    @task
+    def say_hello(name: str) -> str:
+      return f"Hello, world! My name is {name}"
+
+    name = give_name()
+    hello = say_hello(name)
+
+_ = hello_with_passing_data_dag()
+```
+
+This construct passes the value of the `give_name` task to the `say_hello` task and automatically creates the dependency !
+
+## Pass data between Tasks
+
+::: {.callout-warning}
+Tasks can only return **ONE** value !
+:::
+
+. . .
+
+This does not work !
+
+```{.python}
+    @task
+    def give_names():
+      return ["Pierre", "Ada"]
+```
+
+. . .
+
+This does not work either !
+
+```{.python}
+    @task
+    def give_name():
+      return {"name": "Pierre"}
+```
+. . .
+
+This works !
+
+```{.python}
+    @task
+    def give_name():
+      return '{"name": "Pierre"}'
+```
+
+
+## Exercise 5
+
+Create a DAG with two tasks: 
+
+- one task that reads the `users.json` file and returns a **stringified JSON**
+- one task that reads this string and transforms it into a Python dictionary
+
+Hints:
+
+- copy the `resources/json/users.json` file in the `airflow/dags` folder so Airflow knows it exists
+- use `json.dumps` to stringify the user list (a Task can only return a single value, this is why we don't return the list directly)
+- use `json.loads` to read the stringified list back into a Python dictionary
+
+## Multiple outputs
+
+Remember when I said this does not work ?
+
+```{.python}
+    @task
+    def give_name():
+      return {"name": "Pierre"}
+```
+
+. . .
+
+It actually works.
+
+You can return a dictionary from an Airflow task using the `multiple_outputs` parameter to the `@task` decorator.
+
+## Multiple outputs
+
+```{.python code-line-numbers="|11|12|"}
+from airflow.decorators import dag, task
+from datetime import datetime
+
+@dag(
+    schedule=None,
+    start_date=datetime(2024, 1, 1),
+    catchup=False
+)
+def hello_with_multiple_outputs_dag():
+
+    @task(multiple_outputs=True)
+    def give_names() -> dict[str, list[str]]:
+      return {"names": ["Pierre", "Ada"]}
+    
+    @task
+    def say_hello(names: Dict):
+      for name in names["names"]:
+        print(name)
+
+    names = give_names()
+    hello = say_hello(names)
+
+_ = hello_with_multiple_outputs_dag()
+```
+You can actually omit the `multiple_outputs` argument if you use the `dict` type hint.
+
+## Exercise 6
+
+Create a DAG with two tasks: 
+
+- one task that reads the `users.json` file and returns a dictionary
+- one task that reads this dictionary and transforms it into a list of `User` class instances

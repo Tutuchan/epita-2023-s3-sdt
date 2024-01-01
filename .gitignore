@@ -5,3 +5,5 @@ venv
 .ipynb_checkpoints
 /.quarto/
 /_site/
+airflow
+*.ipynb
