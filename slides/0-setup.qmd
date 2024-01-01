@@ -5,12 +5,6 @@ format:
     smaller: true
 ---
 
-## Install Python
-
-Install Python **>= 3.10** from the [Python website](https://www.python.org/downloads/) (or the Microsoft Store on Windows).
-
-You can use [pyenv](https://github.com/pyenv/pyenv) instead.
-
 ## Use the course repository
 
 ## Clone the repository
@@ -29,9 +23,33 @@ git clone https://github.com/<your-github-username>/epita-2023-s3-sdt.git
 cd epita-2023-s3-sdt
 ```
 
+## Install Python
+
+## Install Python for Mac
+
+Install Python **3.10 or 3.11** from the [Python website](https://www.python.org/downloads/).
+
+You can use [pyenv](https://github.com/pyenv/pyenv) instead.
+
+## Install Python for Windows
+
+**You can't use Windows directly in this course.**
+
+Please install Ubuntu from the Windows Store and proceed with the Linux instructions.
+
+## Install Python for Linux
+
+```{.bash}
+sudo apt update && sudo apt upgrade -y
+sudo apt install software-properties-common -y
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install python3.11 python3.11-venv -y
+python3.11 -m ensurepip
+```
+
 ## Create a virtual environment
 
-- make sure the `python` version is `>= 3.10`:
+- make sure the `python` version is `3.10` or `< 3.11`:
 
 ```bash
 python --version
@@ -40,16 +58,11 @@ python --version
 - create a virtual environment
 
 ```{.bash}
-# For Mac / Linux
 python -m venv venv # might need to use python3 here
 source venv/bin/activate
 # make sure the virtual environment python is activated
 which python
 # for me, it returns /Users/pformont/tutuchan/courses/epita-2023-s3-sdt/venv/bin/python
-
-# For Windows
-python -m venv venv # might need to use python3 here
-.\venv\Scripts\activate
 ```
 
 ## Install Airflow
@@ -60,37 +73,26 @@ python -m venv venv # might need to use python3 here
 - make sure the virtual environment is correctly activated:
 
 ```{.bash}
-# For Mac / Linux
 which pip
 # should return something like /Users/<your-user>/whatever/folder/epita-2023-s3-sdt/venv/bin/pip
 # for me, it returns /Users/pformont/tutuchan/courses/epita-2023-s3-sdt/venv/bin/pip
-
-# For Windows (Powershell)
-Get-Command pip | fl *
 ```
 
 - if it does not, run:
 
 ```{.bash}
-# Mac / Linux
 source venv/bin/activate
-# Windows
-.\venv\Scripts\activate
 ```
 
 - read [this documentation](https://airflow.apache.org/docs/apache-airflow/stable/start.html) to install Airflow
 - summary:
 
 ```{.bash}
-# Mac / Linux
 AIRFLOW_VERSION=2.8.0
 PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
 CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
 
 pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
-
-# Windows (replace the airflow and python versions with your value)
-pip install "apache-airflow==2.8.0" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.0/constraints-3.12.1.txt"
 ```
 
 ## Run Airflow
@@ -117,5 +119,5 @@ standalone | Airflow Standalone is for development purposes only. Do not use thi
 - an `airflow` folder should be created with multiple files and folders:
     - you can find the password in `standalone_admin_password.txt`
     - `airflow.cfg` contains the Airflow configuration, we'll use it during the course
-- if you can connect to Airflow on the provided URL ([http://0.0.0.0:8080](http://0.0.0.0:8080) by default) using the `admin` user and the provided password, you're good to go !
+- if you can connect to Airflow on the provided URL ([http://0.0.0.0:8080](http://0.0.0.0:8080) by default or [http://localhost:8080](http://localhost:8080)) using the `admin` user and the provided password, you're good to go !
 
