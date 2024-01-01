@@ -7,7 +7,7 @@ format:
 
 ## Install Python
 
-Install Python **>= 3.10** from the [Python website](https://www.python.org/downloads/).
+Install Python **>= 3.10** from the [Python website](https://www.python.org/downloads/) (or the Microsoft Store on Windows).
 
 You can use [pyenv](https://github.com/pyenv/pyenv) instead.
 
@@ -65,25 +65,32 @@ which pip
 # should return something like /Users/<your-user>/whatever/folder/epita-2023-s3-sdt/venv/bin/pip
 # for me, it returns /Users/pformont/tutuchan/courses/epita-2023-s3-sdt/venv/bin/pip
 
-# For Windows
-TODO
+# For Windows (Powershell)
+Get-Command pip | fl *
 ```
 
 - if it does not, run:
 
 ```{.bash}
+# Mac / Linux
 source venv/bin/activate
+# Windows
+.\venv\Scripts\activate
 ```
 
 - read [this documentation](https://airflow.apache.org/docs/apache-airflow/stable/start.html) to install Airflow
 - summary:
 
 ```{.bash}
+# Mac / Linux
 AIRFLOW_VERSION=2.8.0
 PYTHON_VERSION="$(python --version | cut -d " " -f 2 | cut -d "." -f 1-2)"
 CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
 
 pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+
+# Windows (replace the airflow and python versions with your value)
+pip install "apache-airflow==2.8.0" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.0/constraints-3.12.1.txt"
 ```
 
 ## Run Airflow
