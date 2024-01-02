@@ -3,7 +3,7 @@ title: "Data Structuration"
 author: "Pierre Formont"
 format: 
   revealjs:
-    highlight-style: espresso
+    highlight-style: a11y
     smaller: true
     code-block-background: true
     code-block-border-left: true
@@ -88,7 +88,7 @@ We can split the buffer and extract each part with knowledge of the schema:
 
 ## Parse fixed-length buffers
 
-```{.python code-line-numbers="|10-11|3-8|"}
+```{.python code-line-numbers="|10-13|3-8|"}
 FILE_PATH = "resources/fixed-length/users.txt" 
 
 def parse_user(line):
@@ -99,7 +99,9 @@ def parse_user(line):
   return (id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 print(users)
 ```
@@ -115,7 +117,9 @@ def parse_user(line: str) -> tuple[str, str, str, str]:
   return (id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 print(users)
 ```
@@ -163,7 +167,9 @@ def parse_user(line: str) -> User:
   return User(id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 print(users)
 ```
@@ -186,7 +192,9 @@ def parse_user(line: str) -> User:
   return User(id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 print(users)
 ```
@@ -207,7 +215,9 @@ class User:
     return f"[{self.id}] {self.name} at {self.school} in {self.city}"
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 for user in users:
   print(user)
@@ -231,7 +241,9 @@ class User:
     return f"[{self.id}] {self.name} at {self.school} in {self.city}"
 
 with open(FILE_PATH, "r") as f:
-  users = [parse_user(line) for line in f.readlines()]
+  users = []
+  for line in f.readlines():
+    users.append(parse_user(line))
 
 for user in users:
   print(user)
@@ -257,7 +269,9 @@ def parse_data_user(line: str) -> DataUser:
   return DataUser(id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  data_users = [parse_data_user(line) for line in f.readlines()]
+  data_users = []
+  for line in f.readlines():
+    data_users.append(parse_data_user(line))
 
 for user in data_users:
   print(user)
@@ -283,11 +297,44 @@ def parse_data_user(line: str) -> DataUser:
   return DataUser(id, name, city, school)
 
 with open(FILE_PATH, "r") as f:
-  data_users = [parse_data_user(line) for line in f.readlines()]
+  data_users = []
+  for line in f.readlines():
+    data_users.append(parse_data_user(line))
 
 for user in data_users:
   print(user)
 ```
+
+## Side-note: Python decorators
+
+A decorator is a function that takes another function and extends its behavior without explicitly modifying it.
+
+```{python}
+#| echo: True
+def my_decorator(func):
+    def wrapper():
+        print("Something is happening before the function is called.")
+        func()
+        print("Something is happening after the function is called.")
+    return wrapper
+
+@my_decorator
+def say_hi():
+    print("Hi!")
+```
+
+What happens if we run this ?
+
+. . .
+
+```{python}
+#| echo: True
+say_hi()
+```
+
+. . .
+
+The `@dataclass` decorator adds default `__init__` and `__repr__` (and more) methods to the class it decorates !
 
 ## CSV format (1/2)
 
@@ -299,9 +346,9 @@ It is ubiquitous in tech:
 - many Unix commands (`cut`, `awk`, etc.) can split on commas -> basic CSV handling
 - many text editors and IDEs offer some support for CSV
 
-**But also outside of tech**: spreadsheets (Excel, Libreoffice, etc.) are, functionally, CSV files[^1]
+**But also outside of tech**: spreadsheets (Excel, Libreoffice, etc.) are, functionally, CSV files[^2]
 
-[^1]: disclaimer, `.xslx` files are not actually CSV files
+[^2]: disclaimer, `.xslx` files are not actually CSV files
 
 ## CSV format (2/2)
 
@@ -351,11 +398,53 @@ with open(FILE_PATH, "r") as f:
 
 >  Read the `resources/csv/users.csv` file using the `csv` package and store it into a list of class instances
 
+## Side-note: List comprehensions
+
+```{python code-line-numbers="|4-6"}
+#| echo: true
+def add_one(i):
+  return i + 1
+
+results = []
+for i in [0, 1, 2, 3, 4]:
+  results.append(add_one(i))
+
+print(results)
+```
+
+. . .
+
+You can write it more concisely with:
+
+```{python code-line-numbers="|4"}
+#| echo: true
+def add_one(i):
+  return i + 1
+
+results = [add_one(i) for i in [0, 1, 2, 3, 4]]
+
+print(results)
+```
+
+. . .
+
+Also works with dictionaries:
+
+```{python code-line-numbers="true"}
+#| echo: true
+def add_one(i):
+  return i + 1
+
+results = {i: add_one(i) for i in [0, 1, 2, 3, 4]}
+print(results)
+```
+
+
 ## CSV exercises (2/2)
 
 **Exercise 2**
 
->  Read the `resources/csv/ratp.csv`[^1] file using the `csv` package and place the data in class instances with the following schema:
+>  Read the `resources/csv/ratp.csv`[^3] file using the `csv` package and place the data in class instances with the following schema:
 
 ```{.python}
 class Station:
@@ -368,7 +457,7 @@ class Station:
   district: int | None
 ```
 
-[^1]: RATP data coming from their [open datasets](https://data.ratp.fr/explore/dataset/trafic-annuel-entrant-par-station-du-reseau-ferre-2021/information/).
+[^3]: RATP data coming from their [open datasets](https://data.ratp.fr/explore/dataset/trafic-annuel-entrant-par-station-du-reseau-ferre-2021/information/).
 
 ## JSON format (1/3)
 

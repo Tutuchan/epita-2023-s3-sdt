@@ -153,38 +153,6 @@ Place this file in the `airflow/dags` folder of your repository and Airflow will
 
 [^1]: If it's the first time this DAG file is put in the folder, you might need to restart Airflow.
 
-## Sidenote: Python decorators
-
-A decorator is a function that takes another function and extends its behavior without explicitly modifying it.
-
-```{python}
-#| echo: True
-def my_decorator(func):
-    def wrapper():
-        print("Something is happening before the function is called.")
-        func()
-        print("Something is happening after the function is called.")
-    return wrapper
-
-@my_decorator
-def say_hi():
-    print("Hi!")
-```
-
-
-What happens if we run this ?
-
-. . .
-
-```{python}
-#| echo: True
-say_hi()
-```
-
-. . .
-
-Read more in [this article](https://realpython.com/primer-on-python-decorators/).
-
 ## Write a Task
 
 Two ways to write a Task:

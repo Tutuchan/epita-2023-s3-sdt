@@ -3,7 +3,13 @@ title: "Introduction"
 author: "Pierre Formont"
 format: 
   revealjs:
-    incremental: true 
+    highlight-style: a11y
+    smaller: true
+    incremental: true
+    code-block-background: true
+    code-block-border-left: true
+    code-line-numbers: true
+    theme: night
 ---
 
 ## About me
@@ -11,8 +17,8 @@ format:
 - 2006 - 2009: Engineering school - signal and image processing (ENSE3)
 - 2009 - 2013: PhD in classification for radar imagery
 - 2014 - 2017: Data Scientist @ Datapole
-- 2017 - 2022: Data Scientist / Data Engineer @ Ogury
-- 2022 - now: Lead Data Engineer @ Echo Analytics
+- 2017 - 2022: Data Scientist / Data Engineer @ [Ogury](https://www.linkedin.com/company/ogury-ltd/)
+- 2022 - now: Lead Data Engineer @ [Echo Analytics](https://www.linkedin.com/company/echo-analytics/)
 
 ## Syllabus
 
@@ -26,10 +32,10 @@ format:
 ## Tools and technologies
 
 - Github
-- Python / SQL
+- Python
 - Airflow
 - REST APIs
-- sqlite
+- SQL / sqlite
 
 ## Grading
 
